@@ -16,6 +16,11 @@ class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let status = CNContactStore.authorizationStatus(for: .contacts)
+        if status == .denied || status == .restricted {
+            presentSettingsAlert()
+            return
+        }
         
         
         let contactStore = CNContactStore()
@@ -81,6 +86,19 @@ class TableViewController: UITableViewController {
                     UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
                
             }
+        }
+    }
+    
+    private func presentSettingsAlert() {
+        let settingsURL = URL(string: UIApplication.openSettingsURLString)!
+        
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Permission to Contacts", message: "This app needs access to contacts in order to ...", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Go to Settings", style: .default) { _ in
+                UIApplication.shared.open(settingsURL)
+            })
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            self.present(alert, animated: true)
         }
     }
     
